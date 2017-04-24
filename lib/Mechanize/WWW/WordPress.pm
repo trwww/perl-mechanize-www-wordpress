@@ -55,6 +55,37 @@ Other WordPress API clients are more ad-hoc API tools. This utility is eaiser to
 use for people who want to write their automation in terms of the WordPress
 wp-admin UI.
 
+=head1 VARIABLES
+
+=head2 %prebuilt_actions
+
+=cut
+
+our %prebuilt_actions;
+
+=over4
+
+=item Reading Settings | Front page displays | Front Page | Home
+
+=cut
+
+$prebuilt_actions{'Reading Settings | Front page displays | Front Page | Home'} = [
+  {
+    action => 'get',
+    args   => 'options-reading.php',
+  }, {
+    action => 'values',
+     args   => {
+      show_on_front => 'page',
+      page_on_front => 'Home',
+    },
+  }, {
+    action => 'click',
+  }
+];
+
+=back
+
 =head1 METHODS
 
 =head2 new
@@ -135,10 +166,16 @@ sub wp_run_tasks {
 
 sub wp_run_task {
   my( $self, $task ) = @_;
-
   print '-> ' . $task->{name} . "\n";
 
-  my $actions     = $task->{actions} || [];
+  my $actions = $task->{actions} || $prebuilt_actions{ $task->{name} } || [];
+
+  # insert additional actions in to task
+  my $splice = $task->{splice} || {};
+  foreach my $index ( sort { $a <=> $b } keys %$splice ) {
+    my $action = $splice->{ $index };
+    splice @$actions, $index, 0, $action;
+  }
 
   foreach my $action ( @$actions ) {
     $self->wp_run_action( $task, $action );
