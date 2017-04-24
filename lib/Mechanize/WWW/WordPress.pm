@@ -176,7 +176,7 @@ sub wp_get {
 # quiets 'wide character in print' warnings from run_dump
 binmode STDERR, ":encoding(utf8)";
 
-sub wp_dump {
+sub wp_show_form {
   my( $self, $task ) = @_;
   $self->run_dump;
 }
