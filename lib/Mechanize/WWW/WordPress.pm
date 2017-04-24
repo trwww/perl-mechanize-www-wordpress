@@ -14,7 +14,7 @@ Mechanize::WWW::WordPress - programmatically fill out wordpress admin forms
     my $wp = Mechanize::WWW::WordPress->new(
       domain => 'me.wordpress.com',
     #  path   => '/wp-admin/',
-    #  ssl    => 1,
+    #  ssl    => 0,
       login  => {
         log => 'me',
         pwd => 'pwd',
@@ -37,10 +37,28 @@ Mechanize::WWW::WordPress - programmatically fill out wordpress admin forms
             action => 'show_form',
           }, {
             action => 'click',
+    #        args   => 'submit'
           }
         ]
       }],
     );
+
+or
+
+    my $wp = Mechanize::WWW::WordPress->new(
+      domain => 'me.wordpress.com',
+    #  path   => '/wp-admin/',
+    #  ssl    => 0,
+      login  => {
+        log => 'me',
+        pwd => 'pwd',
+      },
+      tasks => [{
+        name => 'Reading Settings | Front page displays | Front Page | Home',
+      }],
+    );
+
+then:
     
     $wp->run
 
@@ -168,7 +186,7 @@ sub wp_run_task {
   my( $self, $task ) = @_;
   print '-> ' . $task->{name} . "\n";
 
-  # make a copy so we don't overwrite prebuit tasks
+  # make a shallow copy of the actions so we don't overwrite prebuit tasks when using splice
   my @actions = @{ $task->{actions} || $prebuilt_actions{ $task->{name} } || [] };
 
   # insert additional actions in to task
