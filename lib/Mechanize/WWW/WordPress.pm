@@ -73,6 +73,33 @@ Other WordPress API clients are more ad-hoc API tools. This utility is eaiser to
 use for people who want to write their automation in terms of the WordPress
 wp-admin UI.
 
+Each task is a hash with two fields: name and actions. Actions are steps taken
+in the UI. In general the pattern is to use the 'get' action to get a WordPress
+admin page, the 'values' action to set field's on the page's HTML form, and
+the 'click' action to submit the form. The 'show_form' action will dump the
+current form's fields and values to the terminal.
+
+ALPHA WARNING: very new, missing lots of stuff
+
+=head1 TASKS and ACTIONS
+
+The task in the SYNOPSIS sets some values in the Settings -> Reading screen
+of the WordPress UI. When ran, the output of the program will look like this:
+
+    -> Log In
+    Retrieving http://me.wordpress.com/wp-admin/(200)
+    Posting http://me.wordpress.com/wp-login.php(200)
+    <- Log In
+    
+    -> Reading Settings | Front page displays | Front Page | Home
+    Retrieving options-reading.php(200)
+    VALUES: page_on_front => Home
+    VALUES: show_on_front => page
+    Posting http://me.wordpress.com/wp-admin/options.php(200)
+    <- Reading Settings | Front page displays | Front Page | Home
+
+After running the code look in the WordPress UI for the expected values.
+
 =head1 VARIABLES
 
 =head2 %prebuilt_actions
@@ -145,6 +172,7 @@ sub wp_login {
 
   my $wp = $self->{wordpress};
 
+  # log in via a task
   $self->wp_run_task({
     name    => 'Log In',
 
@@ -189,7 +217,7 @@ sub wp_run_task {
   # make a shallow copy of the actions so we don't overwrite prebuit tasks when using splice
   my @actions = @{ $task->{actions} || $prebuilt_actions{ $task->{name} } || [] };
 
-  # insert additional actions in to task
+  # insert additional actions in to task if any
   my $splice = $task->{splice} || {};
   foreach my $index ( sort { $a <=> $b } keys %$splice ) {
     my $action = $splice->{ $index };
@@ -272,6 +300,7 @@ sub wp_run_values {
 
   $values ||= {};
   while( my( $field, $value ) = each %$values ) {
+    printf "VALUES: %s => %s\n", $field, $value unless $task->{name} eq 'Log In';
     $self->run_value( $field => $value );
   }
 }
