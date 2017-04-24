@@ -75,7 +75,7 @@ wp-admin UI.
 
 Each task is a hash with two fields: name and actions. Actions are steps taken
 in the UI. In general the pattern is to use the 'get' action to get a WordPress
-admin page, the 'values' action to set field's on the page's HTML form, and
+admin page, the 'values' action to set fields on the page's HTML form, and
 the 'click' action to submit the form. The 'show_form' action will dump the
 current form's fields and values to the terminal.
 
@@ -98,7 +98,7 @@ of the WordPress UI. When ran, the output of the program will look like this:
     Posting http://me.wordpress.com/wp-admin/options.php(200)
     <- Reading Settings | Front page displays | Front Page | Home
 
-After running the code look in the WordPress UI for the expected values.
+As a sanity test, look in the WordPress UI for the expected values
 
 =head1 VARIABLES
 
