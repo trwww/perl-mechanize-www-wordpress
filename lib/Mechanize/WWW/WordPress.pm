@@ -62,7 +62,11 @@ then:
     
     $wp->run
 
+=head1 VERSION
+
 =cut
+
+our $VERSION = '0.01';
 
 =head1 DESCRIPTION
 
