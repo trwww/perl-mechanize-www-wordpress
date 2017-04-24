@@ -1,8 +1,6 @@
 use strict;
 use warnings;
 
-use WWW::Mechanize::FormFiller;
-
 package Mechanize::WWW::WordPress;
 
 use base qw(WWW::Mechanize::Shell);
@@ -13,7 +11,7 @@ Mechanize::WWW::WordPress - programmatically fill out wordpress admin forms
 
 =head1 SYNOPSIS
 
-    my $wp = Mechanize::WWW::Wordpress->new(
+    my $wp = Mechanize::WWW::WordPress->new(
       domain => 'me.wordpress.com',
     #  path   => '/wp-admin/',
     #  ssl    => 1,
@@ -22,13 +20,25 @@ Mechanize::WWW::WordPress - programmatically fill out wordpress admin forms
         pwd => 'pwd',
       },
       tasks => [{
-        name   => 'Reading Settings | Front page displays | Front Page | Home',
-        get    => 'options-reading.php',
-    #    click  => 'submit',
-        values => {
-          show_on_front => 'page',
-          page_on_front => 'Home',
-        },
+        name    => 'Reading Settings | Front page displays | Front Page | Home',
+        actions => [
+          {
+            action => 'get',
+            args   => 'options-reading.php',
+          }, {
+            action => 'show_form',
+          }, {
+            action => 'values',
+            args   => {
+              show_on_front => 'page',
+              page_on_front => 'Home',
+            },
+          }, {
+            action => 'show_form',
+          }, {
+            action => 'click',
+          }
+        ]
       }],
     );
     
@@ -57,9 +67,6 @@ sub new {
 
   my $wordpress_config = $self->{wordpress} = \%args;
 
-  my $formfiller = WWW::Mechanize::FormFiller->new();
-  $self->{wordpress}{formfiller} ||= $formfiller;
-
   my $url = 'http' . ($wordpress_config->{ssl} ? 's' : '');
   $url   .= '://' .
     $wordpress_config->{domain} .
@@ -70,7 +77,7 @@ sub new {
   return $self;
 }
 
-=head2 new
+=head2 wp_run
 
 =cut
 
@@ -80,7 +87,7 @@ sub wp_run {
   $self->wp_run_tasks;
 }
 
-=head2 new
+=head2 wp_login
 
 =cut
 
@@ -108,7 +115,7 @@ sub wp_login {
   });
 }
 
-=head2 new
+=head2 wp_run_tasks
 
 =cut
 
@@ -122,7 +129,7 @@ sub wp_run_tasks {
   }
 }
 
-=head2 new
+=head2 wp_run_task
 
 =cut
 
