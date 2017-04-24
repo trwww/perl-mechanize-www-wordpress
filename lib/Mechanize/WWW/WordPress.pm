@@ -168,16 +168,17 @@ sub wp_run_task {
   my( $self, $task ) = @_;
   print '-> ' . $task->{name} . "\n";
 
-  my $actions = $task->{actions} || $prebuilt_actions{ $task->{name} } || [];
+  # make a copy so we don't overwrite prebuit tasks
+  my @actions = @{ $task->{actions} || $prebuilt_actions{ $task->{name} } || [] };
 
   # insert additional actions in to task
   my $splice = $task->{splice} || {};
   foreach my $index ( sort { $a <=> $b } keys %$splice ) {
     my $action = $splice->{ $index };
-    splice @$actions, $index, 0, $action;
+    splice @actions, $index, 0, $action;
   }
 
-  foreach my $action ( @$actions ) {
+  foreach my $action ( @actions ) {
     $self->wp_run_action( $task, $action );
   }
 
