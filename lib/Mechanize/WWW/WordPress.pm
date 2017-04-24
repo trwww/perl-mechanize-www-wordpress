@@ -91,13 +91,20 @@ sub wp_login {
 
   $self->wp_run_task({
     name    => 'Log In',
-    get     => $wp->{url},
-    click   => 'wp-submit',
-    actions => [qw( get values click )],
-    values  => {
-      log => $wp->{login}{log},
-      pwd => $wp->{login}{pwd},
-    },
+
+    actions => [{
+      action => 'get',
+      args   => $wp->{url}
+    }, {
+      action => 'values',
+      args   => {
+        log => $wp->{login}{log},
+        pwd => $wp->{login}{pwd},
+      },
+    }, {
+      action => 'click',
+      args   => 'wp-submit'
+    }]
   });
 }
 
@@ -139,8 +146,9 @@ sub wp_run_task {
 
 sub wp_run_action {
   my( $self, $task, $action ) = @_;
-  my $method = "wp_$action";
-  $self->$method( $task );
+  my $action_method = $action->{action};
+  my $method        = "wp_$action_method";
+  $self->$method( $task, $action->{args} );
 }
 
 =head2 wp_unknown
@@ -157,8 +165,8 @@ sub wp_unknown {
 =cut
 
 sub wp_get {
-  my( $self, $task ) = @_;
-  $self->run_get( $task->{get} );
+  my( $self, $task, $url ) = @_;
+  $self->run_get( $url );
 }
 
 =head2 wp_dump
@@ -173,33 +181,33 @@ sub wp_dump {
   $self->run_dump;
 }
 
-=head2 wp_values
-
-=cut
-
-sub wp_values {
-  my( $self, $task ) = @_;
-  $self->wp_run_values( $task );
-}
-
 =head2 wp_click
 
 =cut
 
 sub wp_click {
-  my( $self, $task ) = @_;
+  my( $self, $task, $button ) = @_;
   print 'Posting ' . $self->agent->current_form->action;
-  $self->run_click( $task->{click} or 'submit' );
+  $self->run_click( $button or 'submit' );
 }
 
-=head2 new
+=head2 wp_values
+
+=cut
+
+sub wp_values {
+  my( $self, $task, $values ) = @_;
+  $self->wp_run_values( $task, $values );
+}
+
+=head2 wp_run_values
 
 =cut
 
 sub wp_run_values {
-  my( $self, $task ) = @_;
+  my( $self, $task, $values ) = @_;
 
-  my $values = $task->{values} || {};
+  $values ||= {};
   while( my( $field, $value ) = each %$values ) {
     $self->run_value( $field => $value );
   }
